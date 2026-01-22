@@ -7,12 +7,35 @@ datasource db {
 }
 
 model Explanation {
+  id         String    @id @default(cuid())
+  topic      String
+  content    String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  upvotes    Int       @default(0)
+  helpful    Int       @default(0)
+  notHelpful Int       @default(0)
+  votes      VoteLog[]
+}
+
+// Track submissions for rate limiting (per IP, per day)
+model SubmissionLog {
   id        String   @id @default(cuid())
-  topic     String
-  content   String
+  ip        String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  upvotes   Int      @default(0)
-  helpful   Int      @default(0)
-  notHelpful Int     @default(0)
+
+  @@index([ip, createdAt])
+}
+
+// Track votes for rate limiting and preventing duplicate votes
+model VoteLog {
+  id            String      @id @default(cuid())
+  ip            String
+  explanationId String
+  voteType      String      // "helpful" or "notHelpful"
+  createdAt     DateTime    @default(now())
+  explanation   Explanation @relation(fields: [explanationId], references: [id], onDelete: Cascade)
+
+  @@index([ip, createdAt])
+  @@index([ip, explanationId])
 }
