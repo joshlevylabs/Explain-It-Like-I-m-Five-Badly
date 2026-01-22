@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import {
   getClientIp,
   checkVoteRateLimit,
-  logVote,
   hasVoted,
   rateLimitResponse,
 } from "@/lib/rate-limit";
