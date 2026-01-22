@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Explanation {
+  id        String   @id @default(cuid())
+  topic     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  upvotes   Int      @default(0)
+  helpful   Int      @default(0)
+  notHelpful Int     @default(0)
+}
