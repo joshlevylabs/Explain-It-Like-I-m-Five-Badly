@@ -13,6 +13,7 @@ Users try to explain complex topics as badly as possible, but still technically 
 ## Features
 
 - **Submit Explanations**: Share your terrible explanations of serious topics
+- **AI-Generated Explanations**: Generate bad explanations with AI using your own OpenAI API key
 - **AI-Generated Descriptions**: Each submission gets a witty one-liner description powered by OpenAI
 - **User Accounts**: Sign up and sign in to track your submissions
 - **Account Settings**: Manage your profile and add your own OpenAI API key
@@ -88,7 +89,7 @@ Visit [http://localhost:3000](http://localhost:3000) to see the app.
 
 - [User Submissions](docs/features/user-submissions.md) - How to submit explanations
 - [Account Settings](docs/features/account-settings.md) - User accounts and API key management
-- [AI Description Generation](docs/features/ai-description-generation.md) - Automatic witty descriptions via OpenAI
+- [AI Features](docs/features/ai-description-generation.md) - AI-powered generation and descriptions via OpenAI
 - [Tone and Microcopy](docs/features/tone-and-microcopy.md) - Voice guidelines and UI copy patterns
 - [Interactive Feeds](docs/features/interactive-feeds.md) - Feed UI components and interactions
 
@@ -117,6 +118,11 @@ Visit [http://localhost:3000](http://localhost:3000) to see the app.
 | PUT | `/api/user/api-key` | Save/update API key |
 | DELETE | `/api/user/api-key` | Remove API key |
 
+### AI Generation
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/generate` | Generate a bad explanation using user's API key |
+
 ## Project Structure
 
 ```
@@ -125,6 +131,7 @@ src/
 │   ├── api/
 │   │   ├── auth/             # Authentication API routes
 │   │   ├── explanations/     # Explanations API routes
+│   │   ├── generate/         # AI generation API route
 │   │   └── user/             # User settings API routes
 │   ├── auth/                 # Auth pages (signin, signup, error)
 │   ├── settings/             # Account settings page

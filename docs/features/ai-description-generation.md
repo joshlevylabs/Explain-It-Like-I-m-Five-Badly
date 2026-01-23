@@ -1,8 +1,15 @@
-# AI Description Generation
+# AI-Powered Features
 
-This feature automatically generates witty, one-liner descriptions for user-submitted explanations using OpenAI's GPT models.
+This document covers the AI features powered by OpenAI's GPT models.
 
-## Overview
+## Features Overview
+
+1. **AI Description Generation** - Automatically generates witty descriptions for submitted explanations
+2. **AI Explanation Generation** - Users can generate bad explanations using their own OpenAI API key
+
+---
+
+## AI Description Generation
 
 When a user submits a terrible explanation, the system automatically generates a brief, humorous description that captures what makes the explanation delightfully wrong or confusing. These descriptions appear above the explanation content in the card view.
 
@@ -133,11 +140,110 @@ To test the feature:
 3. Submit a new explanation via the form
 4. Check the explanation card for the AI-generated description
 
+---
+
+## AI Explanation Generation
+
+Users can generate terrible explanations using AI by clicking the "Generate" button in the submission form. This feature requires users to provide their own OpenAI API key.
+
+### User Flow
+
+1. **Sign in** to your account
+2. **Add your OpenAI API key** in Account Settings (`/settings`)
+3. **Enter a topic** in the submission form (e.g., "Quantum Physics")
+4. **Click "Generate"** to create an AI-generated bad explanation
+5. **Review and edit** the generated content (optional)
+6. **Submit** the explanation or click "Generate" again for a new one
+
+### Setup Requirements
+
+Users must:
+1. Have an account and be signed in
+2. Have an OpenAI API key saved in their Account Settings
+3. Have sufficient credits in their OpenAI account
+
+### API Endpoint
+
+**POST `/api/generate`**
+
+Generates a terrible explanation for a given topic.
+
+**Request:**
+```json
+{
+  "topic": "Blockchain"
+}
+```
+
+**Response:**
+```json
+{
+  "explanation": "Blockchain is like a really long receipt that everyone in the world has a copy of, but nobody can throw it away or use white-out on it."
+}
+```
+
+**Error Responses:**
+- `401` - Not signed in
+- `400` - Missing topic or no API key configured
+- `402` - Insufficient OpenAI credits
+- `429` - OpenAI rate limit reached
+- `500` - Generation failed
+
+### API Reference
+
+#### `generateBadExplanation(topic: string, apiKey: string)`
+
+**Location:** `src/lib/openai.ts`
+
+Generates a hilariously bad explanation for a given topic.
+
+**Parameters:**
+- `topic` - The topic to explain badly
+- `apiKey` - The user's OpenAI API key
+
+**Returns:** `Promise<string>`
+
+**Example:**
+```typescript
+import { generateBadExplanation } from "@/lib/openai";
+
+const explanation = await generateBadExplanation(
+  "Taxes",
+  "sk-your-api-key"
+);
+// Returns something like: "Taxes are when the government takes some of
+// your allowance because they need to buy a really big pizza for everyone..."
+```
+
+### UI Components
+
+The "Generate" button appears next to the topic input:
+
+- **Purple button** indicates AI generation feature
+- **Disabled state** when user isn't signed in or has no API key
+- **Loading spinner** during generation
+- **Helper text** guides users to add their API key if missing
+
+### Security
+
+- User API keys are **encrypted** before storing in the database
+- Keys are **decrypted only** when making API calls
+- Keys are **never exposed** to the client
+- Each user can only use their own API key
+
+### Cost Considerations
+
+- Uses `gpt-4o-mini` by default (most cost-effective)
+- Each generation is ~200-400 tokens
+- Users pay for their own OpenAI usage
+- No rate limiting beyond OpenAI's own limits
+
+---
+
 ## Future Improvements
 
 Potential enhancements:
 - Regenerate descriptions for existing explanations
-- Allow users to request a new description
-- Add description caching to reduce API calls
-- Support multiple language models
-- Add A/B testing for different prompt styles
+- Support for alternative AI providers (Anthropic, etc.)
+- Style presets (more absurd, more technical, etc.)
+- Generation history for users
