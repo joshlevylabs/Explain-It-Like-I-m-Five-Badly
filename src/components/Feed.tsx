@@ -59,9 +59,16 @@ export default function Feed({ refreshKey }: FeedProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("comfortable");
   const [searchQuery, setSearchQuery] = useState("");
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const [loadingMessage] = useState(() =>
-    LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)]
-  );
+  // Use first message for SSR, then randomize on client to avoid hydration mismatch
+  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    if (!hasMounted) {
+      setHasMounted(true);
+      setLoadingMessage(LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)]);
+    }
+  }, [hasMounted]);
 
   const fetchExplanations = useCallback(async () => {
     try {
