@@ -23,7 +23,40 @@ When a user submits a terrible explanation, the system automatically generates a
 
 ## API Trigger on Submission
 
-The OpenAI API request is automatically triggered when a new post is submitted through the `/api/explanations` POST endpoint.
+The OpenAI API request is automatically triggered when a new post is submitted through the `/api/explanations` POST endpoint. No additional user action is required - the AI description is generated as part of the normal submission flow.
+
+### Complete Submission Flow
+
+```
+┌─────────────────┐    POST /api/explanations    ┌──────────────────┐
+│  SubmitForm.tsx │ ─────────────────────────────>│  route.ts POST   │
+│                 │    { topic, content }         │                  │
+└─────────────────┘                               └────────┬─────────┘
+                                                           │
+                                                           ▼
+                                                  ┌──────────────────┐
+                                                  │ Validate input   │
+                                                  │ Check rate limit │
+                                                  └────────┬─────────┘
+                                                           │
+                                                           ▼
+                                                  ┌──────────────────┐
+                                                  │ generateExplana- │
+                                                  │ tionDescription()│──────> OpenAI API
+                                                  └────────┬─────────┘
+                                                           │
+                                                           ▼
+                                                  ┌──────────────────┐
+                                                  │ Save to database │
+                                                  │ with description │
+                                                  └────────┬─────────┘
+                                                           │
+                                                           ▼
+                                                  ┌──────────────────┐
+                                                  │ Return response  │
+                                                  │ with explanation │
+                                                  └──────────────────┘
+```
 
 ### Implementation Details
 
@@ -66,6 +99,19 @@ The API request to OpenAI includes:
 - **Explanation content**: The user's terrible explanation text
 
 This data is passed to the `generateExplanationDescription` function which formats it into a prompt for the OpenAI API.
+
+**OpenAI API Request Parameters:**
+```typescript
+{
+  model: "gpt-4o-mini",           // Configurable via OPENAI_MODEL env var
+  messages: [
+    { role: "system", content: "..." },  // Instructions for witty descriptions
+    { role: "user", content: "Topic: {topic}\nTerrible Explanation: \"{content}\"..." }
+  ],
+  max_tokens: 60,                 // Keep responses concise
+  temperature: 0.8                // Allow creative responses
+}
+```
 
 ### Automatic Behavior
 
