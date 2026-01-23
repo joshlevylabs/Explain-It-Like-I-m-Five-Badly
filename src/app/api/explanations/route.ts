@@ -4,6 +4,7 @@ import {
   checkSubmissionRateLimit,
   rateLimitResponse,
 } from "@/lib/rate-limit";
+import { generateExplanationDescription } from "@/lib/openai";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -43,12 +44,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const trimmedTopic = topic.trim();
+  const trimmedContent = content.trim();
+
+  // Generate AI description for the explanation
+  const description = await generateExplanationDescription(trimmedTopic, trimmedContent);
+
   // Create explanation and log the submission in a transaction
   const [explanation] = await prisma.$transaction([
     prisma.explanation.create({
       data: {
-        topic: topic.trim(),
-        content: content.trim(),
+        topic: trimmedTopic,
+        content: trimmedContent,
+        description,
       },
     }),
     prisma.submissionLog.create({

@@ -7,15 +7,17 @@ datasource db {
 }
 
 model Explanation {
-  id         String    @id @default(cuid())
-  topic      String
-  content    String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  upvotes    Int       @default(0)
-  helpful    Int       @default(0)
-  notHelpful Int       @default(0)
-  votes      VoteLog[]
+  id          String    @id @default(cuid())
+  topic       String
+  content     String
+  description String?   // AI-generated witty description of the terrible explanation
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  upvotes     Int       @default(0)
+  downvotes   Int       @default(0)
+  helpful     Int       @default(0)
+  notHelpful  Int       @default(0)
+  votes       VoteLog[]
 }
 
 // Track submissions for rate limiting (per IP, per day)
@@ -32,10 +34,11 @@ model VoteLog {
   id            String      @id @default(cuid())
   ip            String
   explanationId String
-  voteType      String      // "helpful" or "notHelpful"
+  voteType      String      // "upvote" or "downvote"
   createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   explanation   Explanation @relation(fields: [explanationId], references: [id], onDelete: Cascade)
 
+  @@unique([ip, explanationId])
   @@index([ip, createdAt])
-  @@index([ip, explanationId])
 }

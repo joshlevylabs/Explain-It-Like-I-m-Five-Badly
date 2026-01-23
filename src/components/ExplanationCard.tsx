@@ -7,6 +7,7 @@ interface Explanation {
   id: string;
   topic: string;
   content: string;
+  description?: string | null;
   createdAt: string;
   upvotes: number;
   downvotes: number;
@@ -353,6 +354,13 @@ export default function ExplanationCard({
             </div>
           </div>
         </div>
+        {/* AI-generated description */}
+        {explanation.description && (
+          <p className={`text-zinc-500 dark:text-zinc-400 italic ${isCompact ? "text-xs mb-2" : "text-sm mb-3"}`}>
+            {explanation.description}
+          </p>
+        )}
+
         <p className={`text-zinc-800 dark:text-zinc-200 ${isCompact ? "text-base" : "text-lg"} leading-relaxed`}>
           &ldquo;{explanation.content}&rdquo;
         </p>

@@ -13,6 +13,7 @@ Users try to explain complex topics as badly as possible, but still technically 
 ## Features
 
 - **Submit Explanations**: Share your terrible explanations of serious topics
+- **AI-Generated Descriptions**: Each submission gets a witty one-liner description powered by OpenAI
 - **Vote System**: Upvote the funniest explanations (= made me laugh) or downvote (= needs more chaos)
 - **"Did This Help?" Feedback**: Yes / Absolutely Not - both answers are celebrated!
 - **Rate Limiting**: Prevents spam (5 submissions/day, 10 votes/minute)
@@ -62,6 +63,9 @@ npm install
 # Set up the database
 npx prisma migrate dev
 
+# (Optional) Configure OpenAI for AI descriptions
+# Copy .env.example to .env and add your OPENAI_API_KEY
+
 # Start the development server
 npm run dev
 ```
@@ -78,6 +82,7 @@ Visit [http://localhost:3000](http://localhost:3000) to see the app.
 ## Documentation
 
 - [User Submissions](docs/features/user-submissions.md) - How to submit explanations
+- [AI Description Generation](docs/features/ai-description-generation.md) - Automatic witty descriptions via OpenAI
 - [Tone and Microcopy](docs/features/tone-and-microcopy.md) - Voice guidelines and UI copy patterns
 - [Interactive Feeds](docs/features/interactive-feeds.md) - Feed UI components and interactions
 
@@ -109,6 +114,7 @@ src/
 │   └── ScrollToTop.tsx       # Scroll to top button
 └── lib/
     ├── prisma.ts             # Database client
+    ├── openai.ts             # OpenAI integration for descriptions
     ├── rate-limit.ts         # Rate limiting utilities
     └── constants.ts          # App constants
 ```
