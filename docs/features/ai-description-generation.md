@@ -21,6 +21,59 @@ When a user submits a terrible explanation, the system automatically generates a
 4. **The explanation is saved** with its AI-generated description to the database
 5. **Users see the description** displayed above the explanation in the feed
 
+## API Trigger on Submission
+
+The OpenAI API request is automatically triggered when a new post is submitted through the `/api/explanations` POST endpoint.
+
+### Implementation Details
+
+**Location:** `src/app/api/explanations/route.ts`
+
+```typescript
+// POST handler for new submissions
+export async function POST(request: NextRequest) {
+  // ... validation and rate limiting ...
+
+  const trimmedTopic = topic.trim();
+  const trimmedContent = content.trim();
+
+  // Automatically trigger AI description generation
+  const description = await generateExplanationDescription(
+    trimmedTopic,
+    trimmedContent
+  );
+
+  // Save with generated description
+  const [explanation] = await prisma.$transaction([
+    prisma.explanation.create({
+      data: {
+        topic: trimmedTopic,
+        content: trimmedContent,
+        description, // AI-generated description (or null if generation fails)
+      },
+    }),
+    // ... rate limit logging ...
+  ]);
+
+  // ...
+}
+```
+
+### Request Data
+
+The API request to OpenAI includes:
+- **Topic**: The serious topic being explained (e.g., "Quantum Physics")
+- **Explanation content**: The user's terrible explanation text
+
+This data is passed to the `generateExplanationDescription` function which formats it into a prompt for the OpenAI API.
+
+### Automatic Behavior
+
+- The API call happens **synchronously** during post submission
+- No user action required - generation is automatic
+- If OpenAI is unavailable or not configured, the post still saves (with `description: null`)
+- The response includes the generated description when successful
+
 ## Configuration
 
 ### Environment Variables
