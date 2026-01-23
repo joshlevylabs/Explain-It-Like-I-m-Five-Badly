@@ -1,11 +1,11 @@
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { compare } from "bcryptjs";
+import type { NextAuthConfig } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
-export const authOptions: NextAuthOptions = {
+export const authConfig: NextAuthConfig = {
   providers: [
-    CredentialsProvider({
+    Credentials({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -13,24 +13,24 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password required");
+          return null;
         }
+
+        const email = credentials.email as string;
+        const password = credentials.password as string;
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email },
         });
 
-        if (!user) {
-          throw new Error("Invalid email or password");
+        if (!user || !user.password) {
+          return null;
         }
 
-        const isPasswordValid = await compare(
-          credentials.password,
-          user.password
-        );
+        const passwordMatch = await bcrypt.compare(password, user.password);
 
-        if (!isPasswordValid) {
-          throw new Error("Invalid email or password");
+        if (!passwordMatch) {
+          return null;
         }
 
         return {
@@ -46,7 +46,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
-    signOut: "/auth/signout",
     error: "/auth/error",
   },
   callbacks: {
@@ -57,7 +56,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
+      if (token && session.user) {
         session.user.id = token.id as string;
       }
       return session;
