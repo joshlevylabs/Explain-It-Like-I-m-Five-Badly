@@ -6,6 +6,17 @@ datasource db {
   provider = "sqlite"
 }
 
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String?
+  password       String
+  openaiApiKey   String?   // User's own OpenAI API key (encrypted)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  explanations   Explanation[]
+}
+
 model Explanation {
   id          String    @id @default(cuid())
   topic       String
@@ -18,6 +29,8 @@ model Explanation {
   helpful     Int       @default(0)
   notHelpful  Int       @default(0)
   votes       VoteLog[]
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 // Track submissions for rate limiting (per IP, per day)

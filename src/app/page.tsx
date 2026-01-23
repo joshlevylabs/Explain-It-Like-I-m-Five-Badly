@@ -5,6 +5,8 @@ import SubmitForm from "@/components/SubmitForm";
 import Feed from "@/components/Feed";
 import { ToastContainer } from "@/components/Toast";
 import ScrollToTop from "@/components/ScrollToTop";
+import SoundSettings from "@/components/SoundSettings";
+import UserMenu from "@/components/UserMenu";
 
 export default function Home() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -17,6 +19,16 @@ export default function Home() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <ToastContainer />
       <ScrollToTop />
+      <SoundSettings />
+      {/* Navigation bar with user menu */}
+      <nav className="sticky top-0 z-40 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+          <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            ELI5... Badly
+          </span>
+          <UserMenu />
+        </div>
+      </nav>
       <main className="max-w-2xl mx-auto px-4 py-12">
         <header className="text-center mb-12 animate-fade-in">
           <div className="inline-flex items-center justify-center mb-4">

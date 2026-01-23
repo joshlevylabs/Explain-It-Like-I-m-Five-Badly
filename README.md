@@ -14,6 +14,8 @@ Users try to explain complex topics as badly as possible, but still technically 
 
 - **Submit Explanations**: Share your terrible explanations of serious topics
 - **AI-Generated Descriptions**: Each submission gets a witty one-liner description powered by OpenAI
+- **User Accounts**: Sign up and sign in to track your submissions
+- **Account Settings**: Manage your profile and add your own OpenAI API key
 - **Vote System**: Upvote the funniest explanations (= made me laugh) or downvote (= needs more chaos)
 - **"Did This Help?" Feedback**: Yes / Absolutely Not - both answers are celebrated!
 - **Rate Limiting**: Prevents spam (5 submissions/day, 10 votes/minute)
@@ -60,11 +62,14 @@ This distinction is reinforced throughout the UI with playful microcopy and clea
 # Install dependencies
 npm install
 
+# Set up environment variables
+# Copy .env.example to .env and configure:
+# - NEXTAUTH_SECRET: Required for authentication (generate with: openssl rand -base64 32)
+# - NEXTAUTH_URL: Your app URL (http://localhost:3000 for development)
+# - OPENAI_API_KEY: Optional, for AI descriptions
+
 # Set up the database
 npx prisma migrate dev
-
-# (Optional) Configure OpenAI for AI descriptions
-# Copy .env.example to .env and add your OPENAI_API_KEY
 
 # Start the development server
 npm run dev
@@ -82,12 +87,14 @@ Visit [http://localhost:3000](http://localhost:3000) to see the app.
 ## Documentation
 
 - [User Submissions](docs/features/user-submissions.md) - How to submit explanations
+- [Account Settings](docs/features/account-settings.md) - User accounts and API key management
 - [AI Description Generation](docs/features/ai-description-generation.md) - Automatic witty descriptions via OpenAI
 - [Tone and Microcopy](docs/features/tone-and-microcopy.md) - Voice guidelines and UI copy patterns
 - [Interactive Feeds](docs/features/interactive-feeds.md) - Feed UI components and interactions
 
 ## API Endpoints
 
+### Explanations
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/explanations` | Get all explanations |
@@ -95,12 +102,32 @@ Visit [http://localhost:3000](http://localhost:3000) to see the app.
 | GET | `/api/explanations/[id]/vote` | Get vote status |
 | POST | `/api/explanations/[id]/vote` | Vote on an explanation |
 
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register a new user |
+| GET/POST | `/api/auth/[...nextauth]` | NextAuth.js endpoints |
+
+### User Settings
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| PATCH | `/api/user/profile` | Update user profile |
+| PATCH | `/api/user/password` | Change password |
+| GET | `/api/user/api-key` | Check if API key exists |
+| PUT | `/api/user/api-key` | Save/update API key |
+| DELETE | `/api/user/api-key` | Remove API key |
+
 ## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── api/explanations/     # API routes
+│   ├── api/
+│   │   ├── auth/             # Authentication API routes
+│   │   ├── explanations/     # Explanations API routes
+│   │   └── user/             # User settings API routes
+│   ├── auth/                 # Auth pages (signin, signup, error)
+│   ├── settings/             # Account settings page
 │   ├── page.tsx              # Home page
 │   ├── globals.css           # Global styles and animations
 │   └── layout.tsx            # Root layout
@@ -111,12 +138,18 @@ src/
 │   ├── ExplanationCard.tsx   # Individual explanation with share
 │   ├── SkeletonCard.tsx      # Loading placeholder
 │   ├── Toast.tsx             # Toast notification system
-│   └── ScrollToTop.tsx       # Scroll to top button
-└── lib/
-    ├── prisma.ts             # Database client
-    ├── openai.ts             # OpenAI integration for descriptions
-    ├── rate-limit.ts         # Rate limiting utilities
-    └── constants.ts          # App constants
+│   ├── ScrollToTop.tsx       # Scroll to top button
+│   ├── UserMenu.tsx          # User dropdown menu
+│   └── Providers.tsx         # Session provider wrapper
+├── lib/
+│   ├── auth/                 # Auth configuration and utilities
+│   ├── prisma.ts             # Database client
+│   ├── openai.ts             # OpenAI integration for descriptions
+│   ├── encryption.ts         # API key encryption utilities
+│   ├── rate-limit.ts         # Rate limiting utilities
+│   └── constants.ts          # App constants
+└── types/
+    └── next-auth.d.ts        # NextAuth.js type extensions
 ```
 
 ## License
